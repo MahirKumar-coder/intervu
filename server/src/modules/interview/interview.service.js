@@ -28,8 +28,16 @@ export const createInterview = async (
     const response = 
     await generateQuestions(prompt)
 
-    const questions = 
-    JSON.parse(response)
+    let questions
+    try {
+        questions = JSON.parse(response)
+    } catch (error) {
+        await Interview.findByIdAndDelete(interview._id)
+        throw new ApiError(
+            400,
+            "AI generation failed due to safety filters or malformed response. Please try professional, non-suggestive keywords."
+        )
+    }
 
     interview.questions =
     questions.map(q => ({
@@ -252,7 +260,15 @@ export const generateInterviewQuestions = async (
     })
 
     const response = await generateQuestions(prompt)
-    const parsedQuestions = JSON.parse(response)
+    let parsedQuestions
+    try {
+        parsedQuestions = JSON.parse(response)
+    } catch (error) {
+        throw new ApiError(
+            400,
+            "AI regeneration failed due to safety filters or malformed response. Please try professional, non-suggestive keywords."
+        )
+    }
 
     interview.questions = parsedQuestions.map(q => ({
         question: q.question ?? q.questions,

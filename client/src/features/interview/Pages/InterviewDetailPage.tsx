@@ -1,11 +1,31 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useInterviewPolling } from "../Hook/useInterviewPolling";
 import StatusBadge from "../components/StatusBadge";
 import GenerateButton from "../components/GenerateButton";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { socket } from "../../../lib/socket";
 
 export default function InterviewDetailsPage() {
     const { id } = useParams()
     const { data, isLoading } = useInterviewPolling(id!);
+    const queryClient = useQueryClient()
+
+    useEffect(() => {
+        if (id) {
+            socket.emit("join_interview", id)
+        }
+
+        socket.on("interview_status_update", () => {
+            queryClient.invalidateQueries({
+                queryKey: ["interview", id],
+            })
+        })
+
+        return () => {
+            socket.off("interview_status_update")
+        }
+    }, [id, queryClient])
 
     if (isLoading) {
         return (
@@ -73,7 +93,7 @@ export default function InterviewDetailsPage() {
                 <div className="space-y-3">
                     <h3 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">Core Skills</h3>
                     <div className="flex flex-wrap gap-2">
-                        {interview.skills.map((skill) => (
+                        {interview.skills.map((skill: string) => (
                             <span key={skill} className="bg-blue-600/10 border border-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg text-sm font-medium">
                                 {skill}
                             </span>
@@ -86,7 +106,7 @@ export default function InterviewDetailsPage() {
                     <div className="space-y-4 border-t border-zinc-800/80 pt-6">
                         <h3 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">Generated Questions</h3>
                         <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                            {interview.questions.map((q, idx) => (
+                            {interview.questions.map((q: any, idx: number) => (
                                 <div key={q._id || idx} className="bg-zinc-800/20 border border-zinc-800/40 rounded-xl p-4 hover:border-zinc-700/50 transition-all">
                                     <div className="flex items-start justify-between gap-3">
                                         <span className="text-xs font-semibold text-zinc-500 mt-0.5">Q{idx + 1}</span>
@@ -106,11 +126,13 @@ export default function InterviewDetailsPage() {
                 )}
 
                 {/* CTA Action */}
-                <div className="pt-4 border-t border-zinc-800/80 flex justify-end">
+                <div className="pt-4 border-t border-zinc-800/80 flex justify-end w-full">
                     {interview.questions && interview.questions.length > 0 ? (
-                        <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-green-950/20 transform hover:-translate-y-0.5 transition-all">
-                            Start Interview Room
-                        </button>
+                        <Link to={`/interview/${interview._id}/start`} className="w-full">
+                            <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-green-950/20 transform hover:-translate-y-0.5 transition-all">
+                                Start Interview Room
+                            </button>
+                        </Link>
                     ) : (
                         <GenerateButton 
                             interviewId={interview._id}

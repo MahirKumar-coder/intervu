@@ -7,9 +7,9 @@ export const createInterviewSchema = z.object({
     experience: z.number().min(0).max(20),
 
     difficulty: z.enum([
-        "EASY",
-        "MEDIUM",
-        "HARD",
+        "Easy",
+        "Medium",
+        "Hard",
     ]),
 
     skills: z

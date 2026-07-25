@@ -10,6 +10,7 @@ export const buildInterviewPrompt = ({
     You are a senior technical interviewer.
 
     Generate exactly ${numberOfQuestions} interview questions.
+    For the "expectedAnswer", provide a concise, clear technical explanation (under 100-150 words). Avoid writing long code blocks or deep nested code in the expectedAnswer; keep it focused on the conceptual and implementation overview.
 
     Role: 
     ${role}
@@ -49,8 +50,8 @@ export const buildEvaluationPrompt = (questions) => {
         userAnswer: q.userAnswer || ""
     })), null, 2)}
 
-    For each question, provide a score (0 to 10) and construct constructive feedback.
-    Also compute an overallScore (0 to 100) and provide overall feedback summarizing:
+    For each question, provide a score (0 to 10) and construct constructive feedback (under 80 words).
+    Also compute an overallScore (0 to 100) and provide overall feedback (under 150 words) summarizing:
     - Communication
     - Technical
     - Confidence

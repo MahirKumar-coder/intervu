@@ -1,85 +1,102 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useCreateInterview } from "../Hook/useCreateInterview";
-import {
-    type CreateInterviewForm,
-  type CreateInterviewForm as CreateInterviewFormData,
-  createInterviewSchema,
-} from "../schemas/createInterview.schema";
+import { type CreateInterviewForm as CreateInterviewFormData, createInterviewSchema } from "../schemas/createInterview.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { data } from "react-router-dom";
 import Input from "../../../components/ui/Input/Input";
 import Button from "../../../components/ui/Button/Button";
+import TagInput from "../../../components/ui/TagInput/TagInput";
 
 export default function CreateInterviewForm() {
-  const mutation = useCreateInterview();
+    const mutation = useCreateInterview()
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<CreateInterviewForm>({
-    resolver: zodResolver(createInterviewSchema),
-    defaultValues: {
-      role: "",
-      experience: 0,
-      difficulty: "MEDIUM",
-      numberOfQuestions: 10,
-      skills: [],
-    },
-  });
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors }
+    } = useForm<CreateInterviewFormData>({
+        resolver: zodResolver(createInterviewSchema),
+        defaultValues: {
+            experience: 0,
+            difficulty: "Medium",
+            numberOfQuestions: 10,
+            skills: []
+        }
+    })
 
-  return (
-    <form
-      className="space-y-5"
-      onSubmit={handleSubmit((data) => mutation.mutate(data))}
-    >
-      <Input
-        label="Job Role"
-        placeholder="Frontend Developer"
-        {...register("role")}
-        error={errors.role?.message}
-      />
+    return (
+        <form
+            className="space-y-5"
+            onSubmit={handleSubmit((data) => mutation.mutate(data))}
+        >
+            <Input 
+                label="Job Role"
+                placeholder="e.g. Frontend Developer"
+                {...register("role")}
+                error={errors.role?.message}
+            />
 
-      <Input
-        label="Experience"
-        type="number"
-        {...register("experience", {
-          valueAsNumber: true,
-        })}
-      />
+            <Input 
+                label="Experience (Years)"
+                type="number"
+                min={0}
+                {...register("experience", { valueAsNumber: true })}
+                error={errors.experience?.message}
+            />
 
-      <select
-        {...register("difficulty")}
-        className="w-full rounded-lg border border-zinc-700 bg-zinc-900 p-3"
-      >
-        <option value="EASY">Easy</option>
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-300">
+                    Difficulty Level
+                </label>
+                <select
+                    {...register("difficulty")}
+                    className="w-full rounded-lg border border-zinc-700 bg-zinc-900 p-3 text-zinc-100 focus:border-blue-500 focus:outline-none"
+                >
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+                {errors.difficulty && (
+                    <p className="text-sm text-red-500">{errors.difficulty.message}</p>
+                )}
+            </div>
 
-        <option value="MEDIUM">Medium</option>
-        <option value="HARD">Hard</option>
-      </select>
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-300">
+                    Skills Required
+                </label>
+                <Controller
+                    control={control}
+                    name="skills"
+                    render={({ field }) => (
+                        <TagInput
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Type a skill and press Enter..."
+                        />
+                    )}
+                />
+                {errors.skills && (
+                    <p className="text-sm text-red-500">
+                        {errors.skills.message || "At least one skill is required"}
+                    </p>
+                )}
+            </div>
 
-      <Input
-        label="Skills"
-        placeholder="React,Node,MongoDB"
-        onChange={() => {}}
-      />
+            <Input 
+                label="Number of Questions"
+                type="number"
+                min={5}
+                {...register("numberOfQuestions", { valueAsNumber: true })}
+                error={errors.numberOfQuestions?.message}
+            />
 
-      <Input
-        label="Questions"
-        type="number"
-        {...register(
-          "numberOfQuestions",
-
-          {
-            valueAsNumber: true,
-          },
-        )}
-      />
-
-      <Button loading={mutation.isPending} className="w-full">
-        Create Interview
-      </Button>
-    </form>
-  );
+            <Button
+                loading={mutation.isPending}
+                className="w-full"
+            >
+                Create Interview
+            </Button>
+        </form>
+    )
 }

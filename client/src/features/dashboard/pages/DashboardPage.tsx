@@ -2,11 +2,32 @@ import { useDashboard } from "../hooks/useDashboard";
 import DashboardHeader from "../components/DashboardHeader"
 import StatsGrid from "../components/StatsGrid";
 import RecentInterviews from "../components/RecentInterviews"
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMe } from "../../auth/hooks/useMe";
+import { socket } from "../../../lib/socket";
+import { QUERY_KEYS } from "../../../lib/queryKeys";
 
 export default function DashboardPage() {
-    
-    const { data, isLoading } = 
-    useDashboard()
+    const { data, isLoading } = useDashboard()
+    const { data: meData } = useMe()
+    const queryClient = useQueryClient()
+
+    useEffect(() => {
+        const userId = meData?.data?._id
+        if (userId) {
+            socket.emit("join_dashboard", userId)
+        }
+
+        socket.on("dashboard_update", () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.INTERVIEWS })
+        })
+
+        return () => {
+            socket.off("dashboard_update")
+        }
+    }, [meData, queryClient])
 
     if (isLoading) {
         return (

@@ -1,16 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { createInterview } from "../api/interview.api";
+import { submitInterview } from "../api/interviewSession.api";
 import { toast } from "sonner";
 import { QUERY_KEYS } from "../../../lib/queryKeys";
 
-export function useCreateInterview() {
+export function useSubmitInterview(id: string) {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
 
     return useMutation({
-
-        mutationFn: createInterview,
+        mutationFn: () => submitInterview(id),
 
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -19,20 +18,13 @@ export function useCreateInterview() {
             queryClient.invalidateQueries({
                 queryKey: QUERY_KEYS.INTERVIEWS
             })
-
-            toast.success(
-                "Interview created"
-            )
-
-            navigate(
-                `/dashboard`
-            )
+            toast.success("Interview submitted successfully!")
+            navigate(`/evaluation/${id}`)
         },
 
-        onError: () => {
-
+        onError: (error: any) => {
             toast.error(
-                "Failed to create interview"
+                error?.response?.data?.message || "Failed to submit interview"
             )
         }
     })

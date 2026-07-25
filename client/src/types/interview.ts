@@ -1,7 +1,7 @@
 export type Difficulty =
-| "EASY"
-| "MEDIUM"
-| "HARD"
+| "Easy"
+| "Medium"
+| "Hard"
 
 export interface CreateInterviewPayload {
     role: string
@@ -20,8 +20,6 @@ export interface Interview {
     numberOfQuestions: number
     status: 
     | "CREATED"
-    | "GENERATED"
-    | "READY"
-    | "FAILED"
+    | "IN_PROGRESS"
     | "COMPLETED"
 }

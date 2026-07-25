@@ -42,15 +42,15 @@ router.post(
 )
 
 router.get(
-    "/",
+    "/:id/evaluation",
     verifyJWT,
-    InterviewController.getUserInterviews
+    InterviewController.getEvaluation
 )
 
 router.get(
-    "/:id",
+    "/",
     verifyJWT,
-    InterviewController.getInterviewById
+    InterviewController.getUserInterviews
 )
 
 router.delete(
@@ -63,6 +63,12 @@ router.post(
     "/:id/generate",
     verifyJWT,
     InterviewController.generateQuestions
+)
+
+router.get(
+    "/:id/events",
+    verifyJWT,
+    InterviewController.streamInterviewEvents
 )
 
 export default router

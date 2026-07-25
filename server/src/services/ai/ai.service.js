@@ -30,7 +30,7 @@ export const generateQuestions = async (prompt) => {
                     }
                 ],
                 temperature: 0.7,
-                max_tokens: 4096
+                max_tokens: 2000
             }),
             '--write-out',
             '\n%{http_code}'
@@ -50,10 +50,25 @@ export const generateQuestions = async (prompt) => {
         throw error
     }
 
-    console.log("Raw AI Content:", body.choices[0].message.content)
+    const content = body.choices[0].message.content.trim()
+    console.log("Raw AI Content:", content)
 
-    return body.choices[0].message.content
-        .replace(/^```(?:json)?\s*/i, '')
-        .replace(/\s*```$/, '')
-        .trim()
+    const firstBracket = content.indexOf('[')
+    const firstBrace = content.indexOf('{')
+    let startIndex = -1
+    let endIndex = -1
+
+    if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
+        startIndex = firstBracket;
+        endIndex = content.lastIndexOf(']');
+    } else if (firstBrace !== -1) {
+        startIndex = firstBrace;
+        endIndex = content.lastIndexOf('}');
+    }
+
+    if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+        return content.substring(startIndex, endIndex + 1);
+    }
+
+    return content
 }
