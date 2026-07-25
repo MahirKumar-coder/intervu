@@ -13,8 +13,9 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(cookieprarser())
+const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : "*";
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: clientUrl,
     credentials: true
 }))
 app.use(helmet())

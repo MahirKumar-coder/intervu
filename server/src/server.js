@@ -12,9 +12,10 @@ const PORT = process.env.PORT || 5000
 connectDB()
 
 const server = http.createServer(app)
+const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : "*";
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL,
+        origin: clientUrl,
         credentials: true
     }
 })
