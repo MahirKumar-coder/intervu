@@ -6,20 +6,7 @@ export const getDashboard = async (userId) => {
     const user = await User.findById(userId)
     .select("-password")
 
-    Interview.aggregate([
-        {
-            $match: {
-                user: userId
-            }
-        },
-        {
-            $group: {
-                _id: null,
-                total: { $sum: 1 },
-                averageScore: { $avg: "$overallScore" }
-            }
-        }
-    ])
+    const interviews = await Interview.find({ user: userId })
 
     const totalInterviews = interviews.length
 
@@ -31,23 +18,23 @@ export const getDashboard = async (userId) => {
     const inProgress =
     interviews.filter(
         interview => 
-            interview.status === "IN_PROGRESS"
+            interview.status === "IN_PROGRESS" || interview.status === "CREATED"
     ).length
 
     const averageScore = 
     completed === 0
     ? 0
-    : interview.reduce(
+    : interviews.reduce(
         (sum, interview) => 
-            sum + interview.overallScore,
+            sum + (interview.overallScore || 0),
         0
     ) / completed
 
     const recentInterviews = 
-    interviews
+    [...interviews]
     .sort(
         (a, b) => 
-            b.createdAt - a.createdAt
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
     .slice(0, 5)
 

@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom"
 import LoginPage from "../features/auth/pages/LoginPage"
 import ProtectedRoute from "./ProtectedRoute"
-import Dashboard from "../pages/Dashboard"
+import DashboardPage from "../features/dashboard/pages/DashboardPage"
 
 
 
@@ -14,9 +14,10 @@ export default function AppRoutes() {
             
             <Route 
             path="/dashboard"
-            element={<Dashboard />}
+            element={<DashboardPage />}
             />
             </Route>
+
         </Routes>
     )
 }

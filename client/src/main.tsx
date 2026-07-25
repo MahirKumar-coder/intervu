@@ -5,6 +5,7 @@ import { queryClient } from "./lib/queryClient"
 import { BrowserRouter } from "react-router-dom"
 import App from "./App"
 import { Toaster } from "sonner"
+import "./styles/index.css"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
