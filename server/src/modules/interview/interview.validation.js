@@ -20,8 +20,11 @@ export  const createInterviewSchema = z.object({
     ]),
 
     skills: z
-    .array(z.string())
-    .min(1),
+  .array(
+    z.string().min(2)
+  )
+  .min(1, "Add at least one skill")
+  .max(10, "Maximum 10 skills"),
 
     numberOfQuestions: z
     .number()
