@@ -165,3 +165,22 @@ asyncHandler(async (req, res) => {
     )
     
 })
+
+export const generateQuestions = asyncHandler(
+    async (req, res) => {
+        const { id: interviewId } = req.params
+
+        const interview = await InterviewService.generateInterviewQuestions(
+            interviewId,
+            req.user._id
+        )
+
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                interview,
+                "Questions generated successfully"
+            )
+        )
+    }
+)

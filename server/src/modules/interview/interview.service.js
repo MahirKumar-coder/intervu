@@ -241,23 +241,27 @@ export const generateInterviewQuestions = async (
 
     if (!interview) {
         throw new ApiError(404, "Interview not found");
-        
     }
 
-    if (interview.status !== "CREATED") {
-        throw new ApiError(
-            400,
-            "Questions already generated");
-        
-    }
+    const prompt = buildInterviewPrompt({
+        role: interview.role,
+        experience: interview.experience,
+        difficulty: interview.difficulty,
+        skills: interview.skills,
+        numberOfQuestions: interview.numberOfQuestions
+    })
 
-    interview.status = "GENERATING"
-    await interview.save()
+    const response = await generateQuestions(prompt)
+    const parsedQuestions = JSON.parse(response)
 
-    // AI call here
-
-    interview.questions = questions
-    interview.status = "READY"
+    interview.questions = parsedQuestions.map(q => ({
+        question: q.question ?? q.questions,
+        expectedAnswer: q.expectedAnswer,
+        userAnswer: "",
+        feedback: "",
+        score: 0,
+        status: "PENDING"
+    }))
 
     await interview.save()
 
