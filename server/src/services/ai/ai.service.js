@@ -1,8 +1,8 @@
 export const generateQuestions = async (prompt) => {
-    const baseUrl = process.env.OPENROUTER_BASE_URL?.trim();
+    const baseUrl = process.env.OPENROUTER_BASE_URL?.trim() || "https://openrouter.ai/api/v1";
     const apiKey = process.env.OPENROUTER_API_KEY?.trim();
     const clientUrl = process.env.CLIENT_URL?.trim() || "*";
-    const model = process.env.AI_MODEL?.trim();
+    const model = process.env.AI_MODEL?.trim() || "google/gemini-2.5-flash";
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',

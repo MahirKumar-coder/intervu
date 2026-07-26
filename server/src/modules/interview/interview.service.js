@@ -28,9 +28,9 @@ export const createInterview = async (
     const response = 
     await generateQuestions(prompt)
 
-    let questions
+    let parsedQuestions
     try {
-        questions = JSON.parse(response)
+        parsedQuestions = JSON.parse(response)
     } catch (error) {
         await Interview.findByIdAndDelete(interview._id)
         throw new ApiError(
@@ -39,8 +39,21 @@ export const createInterview = async (
         )
     }
 
+    let questionsArray = []
+    if (Array.isArray(parsedQuestions)) {
+        questionsArray = parsedQuestions
+    } else if (parsedQuestions && Array.isArray(parsedQuestions.questions)) {
+        questionsArray = parsedQuestions.questions
+    } else {
+        await Interview.findByIdAndDelete(interview._id)
+        throw new ApiError(
+            400,
+            "AI response format is invalid. Expected an array of questions."
+        )
+    }
+
     interview.questions =
-    questions.map(q => ({
+    questionsArray.map(q => ({
         question: q.question ?? q.questions,
         expectedAnswer: q.expectedAnswer,
         userAnswer: "",
@@ -270,7 +283,19 @@ export const generateInterviewQuestions = async (
         )
     }
 
-    interview.questions = parsedQuestions.map(q => ({
+    let questionsArray = []
+    if (Array.isArray(parsedQuestions)) {
+        questionsArray = parsedQuestions
+    } else if (parsedQuestions && Array.isArray(parsedQuestions.questions)) {
+        questionsArray = parsedQuestions.questions
+    } else {
+        throw new ApiError(
+            400,
+            "AI response format is invalid. Expected an array of questions."
+        )
+    }
+
+    interview.questions = questionsArray.map(q => ({
         question: q.question ?? q.questions,
         expectedAnswer: q.expectedAnswer,
         userAnswer: "",
