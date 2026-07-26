@@ -19,13 +19,6 @@ export const register = asyncHandler( async (req, res) => {
 
         setAuthCookie(res, token)
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: false, // change to true in production with HTTPS
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
-
         res.status(201).json(
             new ApiResponse(
                 201,
@@ -54,12 +47,7 @@ export const login = asyncHandler(async (req, res) => {
 
     const token = generateToken(user._id)
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    })
+    setAuthCookie(res, token)
 
     user.password = undefined
 
@@ -74,12 +62,6 @@ export const login = asyncHandler(async (req, res) => {
 
 
 export const logout = asyncHandler(async (req, res) => {
-    res.clearCookie("token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax"
-    })
-
     clearAuthCookie(res)
 
     res.status(200).json(

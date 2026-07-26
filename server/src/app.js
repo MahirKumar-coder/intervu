@@ -10,6 +10,8 @@ import dashboardRoutes from './modules/dashboard/dashboard.routes.js'
 
 const app = express()
 
+app.set('trust proxy', 1)
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(cookieprarser())
