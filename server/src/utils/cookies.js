@@ -1,4 +1,4 @@
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.CLIENT_URL && !process.env.CLIENT_URL.includes("localhost");
 
 export const cookieOptions = {
     httpOnly: true,
