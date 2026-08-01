@@ -12,10 +12,24 @@ const PORT = process.env.PORT || 5000
 connectDB()
 
 const server = http.createServer(app)
-const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : "*";
+const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : "";
+const allowedOrigins = [
+    clientUrl,
+    "https://intervu-delta.vercel.app"
+].filter(Boolean);
+
 const io = new Server(server, {
     cors: {
-        origin: clientUrl,
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
+            const normalized = origin.replace(/\/$/, "");
+            const isAllowed = allowedOrigins.some(o => o.replace(/\/$/, "") === normalized);
+            if (isAllowed || process.env.NODE_ENV !== 'production') {
+                callback(null, true);
+            } else {
+                callback(null, false);
+            }
+        },
         credentials: true
     }
 })
